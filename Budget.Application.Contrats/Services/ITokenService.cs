@@ -4,5 +4,7 @@ namespace Budget.Application.Contrats.Services;
 
 public interface ITokenService
 {
-    string GenerateToken(Utilisateur utilisateur);
+    TokenResult GenerateToken(Utilisateur utilisateur, bool seSouvenirDeMoi = false);
 }
+
+public sealed record TokenResult(string Token, DateTime Expiration);

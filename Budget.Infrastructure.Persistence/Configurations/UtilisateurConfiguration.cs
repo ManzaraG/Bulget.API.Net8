@@ -12,9 +12,13 @@ public sealed class UtilisateurConfiguration : IEntityTypeConfiguration<Utilisat
 
         builder.HasKey(u => u.Id);
 
+        builder.Property(u => u.Prenom)
+            .IsRequired()
+            .HasMaxLength(50);
+
         builder.Property(u => u.Nom)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(50);
 
         builder.Property(u => u.Email)
             .IsRequired()

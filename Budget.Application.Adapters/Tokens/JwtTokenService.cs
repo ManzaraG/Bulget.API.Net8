@@ -10,7 +10,7 @@ namespace Budget.Application.Adapters.Tokens;
 
 public sealed class JwtTokenService(IOptions<JwtSettings> jwtSettings) : ITokenService
 {
-    public string GenerateToken(Utilisateur utilisateur)
+    public TokenResult GenerateToken(Utilisateur utilisateur, bool seSouvenirDeMoi = false)
     {
         var settings = jwtSettings.Value;
 
@@ -18,19 +18,23 @@ public sealed class JwtTokenService(IOptions<JwtSettings> jwtSettings) : ITokenS
         [
             new Claim(ClaimTypes.NameIdentifier, utilisateur.Id.ToString()),
             new Claim(ClaimTypes.Email, utilisateur.Email),
-            new Claim(ClaimTypes.Name, utilisateur.Nom),
+            new Claim(ClaimTypes.Name, utilisateur.Prenom),
         ];
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var expiration = seSouvenirDeMoi
+            ? DateTime.UtcNow.AddDays(settings.RememberMeExpirationDays)
+            : DateTime.UtcNow.AddMinutes(settings.ExpirationMinutes);
+
         var token = new JwtSecurityToken(
             issuer: settings.Issuer,
             audience: settings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(settings.ExpirationMinutes),
+            expires: expiration,
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new TokenResult(new JwtSecurityTokenHandler().WriteToken(token), expiration);
     }
 }
