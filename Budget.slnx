@@ -1,0 +1,12 @@
+<Solution>
+  <Project Path="Budget.API/Budget.API.csproj" />
+  <Project Path="Budget.Application.Adapters/Budget.Application.Adapters.csproj" />
+  <Project Path="Budget.Application.Contrats/Budget.Application.Contrats.csproj" />
+  <Project Path="Budget.Application.Dtos/Budget.Application.Dtos.csproj" />
+  <Project Path="Budget.Application.Tests/Budget.Application.Tests.csproj" />
+  <Project Path="Budget.Application/Budget.Application.csproj" />
+  <Project Path="Budget.Domain/Budget.Domain.csproj" />
+  <Project Path="Budget.Infrastructure.Exceptions/Budget.Infrastructure.Exceptions.csproj" />
+  <Project Path="Budget.Infrastructure.Persistence/Budget.Infrastructure.Persistence.csproj" />
+  <Project Path="Budget.Shared/Budget.Shared.csproj" />
+</Solution>

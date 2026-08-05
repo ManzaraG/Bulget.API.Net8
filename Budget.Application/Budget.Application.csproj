@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Budget.Domain\Budget.Domain.csproj" />
+    <ProjectReference Include="..\Budget.Application.Contrats\Budget.Application.Contrats.csproj" />
+    <ProjectReference Include="..\Budget.Application.Dtos\Budget.Application.Dtos.csproj" />
+    <ProjectReference Include="..\Budget.Shared\Budget.Shared.csproj" />
+    <ProjectReference Include="..\Budget.Infrastructure.Exceptions\Budget.Infrastructure.Exceptions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
