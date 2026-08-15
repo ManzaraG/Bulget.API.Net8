@@ -9,7 +9,7 @@ public class Transaction
     public TypeTransaction Type { get; }
     public DateTime Date { get; private set; }
     public string? Description { get; private set; }
-    public Guid CompteId { get; }
+    public Guid SourceRevenuId { get; }
     public Guid? CategorieId { get; private set; }
 
     public bool EstRevenu => Type == TypeTransaction.Revenu;
@@ -22,20 +22,20 @@ public class Transaction
     private Transaction(
         decimal montant,
         TypeTransaction type,
-        Guid compteId,
+        Guid sourceRevenuId,
         Guid? categorieId,
         string? description,
         DateTime date)
     {
         GuardMontantPositif(montant);
 
-        if (compteId == Guid.Empty)
-            throw new ArgumentException("Une transaction doit être rattachée à un compte.", nameof(compteId));
+        if (sourceRevenuId == Guid.Empty)
+            throw new ArgumentException("Une transaction doit être rattachée à une source de revenu.", nameof(sourceRevenuId));
 
         Id = Guid.NewGuid();
         Montant = montant;
         Type = type;
-        CompteId = compteId;
+        SourceRevenuId = sourceRevenuId;
         CategorieId = categorieId;
         Description = description;
         Date = date;
@@ -43,19 +43,19 @@ public class Transaction
 
     public static Transaction CreerRevenu(
         decimal montant,
-        Guid compteId,
+        Guid sourceRevenuId,
         Guid? categorieId = null,
         string? description = null,
         DateTime? date = null)
-        => new(montant, TypeTransaction.Revenu, compteId, categorieId, description, date ?? DateTime.UtcNow);
+        => new(montant, TypeTransaction.Revenu, sourceRevenuId, categorieId, description, date ?? DateTime.UtcNow);
 
     public static Transaction CreerDepense(
         decimal montant,
-        Guid compteId,
+        Guid sourceRevenuId,
         Guid? categorieId = null,
         string? description = null,
         DateTime? date = null)
-        => new(montant, TypeTransaction.Depense, compteId, categorieId, description, date ?? DateTime.UtcNow);
+        => new(montant, TypeTransaction.Depense, sourceRevenuId, categorieId, description, date ?? DateTime.UtcNow);
 
     public void Modifier(decimal montant, string? description, Guid? categorieId, DateTime date)
     {

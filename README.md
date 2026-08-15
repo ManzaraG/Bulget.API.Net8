@@ -64,8 +64,8 @@ Le code est organisé en couches concentriques. Les couches externes (API, persi
 
 | Couche | Rôle |
 |---|---|
-| `Budget.Domain` | Le cœur : entités métier (Utilisateur, Compte, Catégorie, Transaction) et leurs règles. Ne dépend de rien d'autre. |
-| `Budget.Application` | Les cas d'usage (commandes/requêtes) organisés par fonctionnalité : Authentication, Comptes, Categories, Transactions, Bilans. |
+| `Budget.Domain` | Le cœur : entités métier (Utilisateur, SourceRevenu, Catégorie, Transaction) et leurs règles. Ne dépend de rien d'autre. |
+| `Budget.Application` | Les cas d'usage (commandes/requêtes) organisés par fonctionnalité : Authentication, SourcesRevenu, Categories, Transactions, Bilans. |
 | `Budget.Application.Contrats` | Les interfaces attendues par les cas d'usage (dépôts de données, hachage de mot de passe, service de jeton). |
 | `Budget.Application.Adapters` | Les implémentations de ces interfaces qui ne touchent pas à la base de données (génération du JWT, hachage). |
 | `Budget.Application.Dtos` | Les formes de données échangées avec l'extérieur (requêtes et réponses de l'API). |
@@ -89,7 +89,7 @@ Le contrôleur ne contient aucune logique : il traduit la requête HTTP en comma
 
 ### Autorisation : deux niveaux
 
-Un premier niveau, générique, vérifie côté API que la requête porte un jeton JWT valide. Un second niveau, propre à chaque cas d'usage, vérifie que la ressource demandée appartient bien à l'utilisateur connecté (par exemple via `CompteAuthorizationGuard`) — ce choix délibéré évite de mélanger « qui peut appeler l'API » et « qui possède quoi ».
+Un premier niveau, générique, vérifie côté API que la requête porte un jeton JWT valide. Un second niveau, propre à chaque cas d'usage, vérifie que la ressource demandée appartient bien à l'utilisateur connecté (par exemple via `SourceRevenuAuthorizationGuard`) — ce choix délibéré évite de mélanger « qui peut appeler l'API » et « qui possède quoi ».
 
 ## 05 — Modèle de domaine
 
@@ -98,13 +98,13 @@ Quatre entités suffisent à représenter tout le métier. La particularité à 
 ```mermaid
 flowchart LR
     subgraph Perimetre["Périmètre d'un utilisateur"]
-        U["Utilisateur<br/>prénom, nom, email"] -->|"possède 0..N"| C["Compte<br/>nom"]
+        U["Utilisateur<br/>prénom, nom, email"] -->|"possède 0..N"| C["SourceRevenu<br/>nom, type, actif"]
         C -->|"contient 0..N"| T["Transaction<br/>montant positif, type, date"]
     end
     T -.->|référence| Cat["Catégorie<br/>partagée — hors périmètre"]
 ```
 
-Les catégories sont hors de la frontière du périmètre utilisateur : c'est la seule entité qui n'a pas de propriétaire. Une transaction, elle, ne peut exister sans compte, et un compte ne peut exister sans utilisateur.
+Les catégories sont hors de la frontière du périmètre utilisateur : c'est la seule entité qui n'a pas de propriétaire. Une transaction, elle, ne peut exister sans source de revenu, et une source de revenu ne peut exister sans utilisateur.
 
 ## 06 — Les endpoints
 
@@ -114,15 +114,17 @@ Cinq contrôleurs. Tous exigent un jeton JWT valide, à l'exception de l'authent
 |---|---|
 | `POST /api/auth/register` | Inscription (prénom, nom, email, mot de passe + confirmation, acceptation des CGU) |
 | `POST /api/auth/login` | Connexion, avec option « se souvenir de moi » |
-| `GET /api/accounts` | Liste des comptes de l'utilisateur connecté |
-| `POST /api/accounts` | Créer un compte |
-| `PUT /api/accounts/{id}` | Renommer un compte |
-| `DELETE /api/accounts/{id}` | Supprimer un compte |
+| `GET /api/accounts` | Liste des sources de revenu de l'utilisateur connecté |
+| `POST /api/accounts` | Créer une source de revenu |
+| `PUT /api/accounts/{id}` | Renommer une source de revenu |
+| `PATCH /api/accounts/{id}/activate` | Réactiver une source de revenu |
+| `PATCH /api/accounts/{id}/deactivate` | Désactiver une source de revenu (sans supprimer son historique) |
+| `DELETE /api/accounts/{id}` | Supprimer une source de revenu désactivée |
 | `GET /api/categories` | Liste des catégories (catalogue partagé) |
 | `POST /api/categories` | Créer une catégorie |
 | `PUT /api/categories/{id}` | Renommer une catégorie |
 | `DELETE /api/categories/{id}` | Supprimer une catégorie |
-| `GET /api/transactions?compteId=` | Historique des transactions d'un compte |
+| `GET /api/transactions?sourceRevenuId=` | Historique des transactions d'une source de revenu |
 | `POST /api/transactions` | Enregistrer un revenu ou une dépense |
 | `PUT /api/transactions/{id}` | Modifier montant, description, catégorie ou date |
 | `DELETE /api/transactions/{id}` | Supprimer une transaction |

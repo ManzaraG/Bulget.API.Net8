@@ -11,6 +11,6 @@ internal static class TransactionMappingExtensions
         transaction.EstRevenu ? TypeTransactionDto.Revenu : TypeTransactionDto.Depense,
         transaction.Date,
         transaction.Description,
-        transaction.CompteId,
+        transaction.SourceRevenuId,
         transaction.CategorieId);
 }

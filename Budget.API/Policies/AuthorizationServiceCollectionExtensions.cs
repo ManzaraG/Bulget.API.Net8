@@ -4,9 +4,9 @@ namespace Budget.API.Policies;
 
 /// <summary>
 /// Politiques d'accès aux endpoints (« l'utilisateur est-il connecté ? »).
-/// La règle « ne peut consulter/modifier que ses propres comptes et transactions » est une
+/// La règle « ne peut consulter/modifier que ses propres sources de revenu et transactions » est une
 /// décision métier qui dépend de la ressource chargée : elle est appliquée dans
-/// Budget.Application.Features.Comptes.CompteAuthorizationGuard, pas ici.
+/// Budget.Application.Features.SourcesRevenu.SourceRevenuAuthorizationGuard, pas ici.
 /// </summary>
 public static class AuthorizationServiceCollectionExtensions
 {

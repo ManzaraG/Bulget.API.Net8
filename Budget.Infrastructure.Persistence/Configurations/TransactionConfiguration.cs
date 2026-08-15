@@ -25,14 +25,14 @@ public sealed class TransactionConfiguration : IEntityTypeConfiguration<Transact
 
         builder.Property(t => t.Description).HasMaxLength(500);
 
-        builder.Property(t => t.CompteId).IsRequired();
+        builder.Property(t => t.SourceRevenuId).IsRequired();
 
-        builder.HasIndex(t => t.CompteId);
-        builder.HasIndex(t => new { t.CompteId, t.Date });
+        builder.HasIndex(t => t.SourceRevenuId);
+        builder.HasIndex(t => new { t.SourceRevenuId, t.Date });
 
-        builder.HasOne<Compte>()
+        builder.HasOne<SourceRevenu>()
             .WithMany()
-            .HasForeignKey(t => t.CompteId)
+            .HasForeignKey(t => t.SourceRevenuId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne<Categorie>()

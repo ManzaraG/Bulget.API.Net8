@@ -1,7 +1,7 @@
 using Budget.Application.Contrats.Identities;
 using Budget.Application.Contrats.Repositories;
 using Budget.Application.Dtos.Transactions;
-using Budget.Application.Features.Comptes;
+using Budget.Application.Features.SourcesRevenu;
 using Budget.Domain.Entities;
 using Budget.Infrastructure.Exceptions;
 using Mediator;
@@ -17,7 +17,7 @@ public sealed record UpdateTransactionCommand(
 
 public sealed class UpdateTransactionCommandHandler(
     ITransactionRepository transactionRepository,
-    ICompteRepository compteRepository,
+    ISourceRevenuRepository sourceRevenuRepository,
     ICurrentUserService currentUserService) : ICommandHandler<UpdateTransactionCommand, TransactionDto>
 {
     public async ValueTask<TransactionDto> Handle(UpdateTransactionCommand command, CancellationToken cancellationToken)
@@ -25,8 +25,8 @@ public sealed class UpdateTransactionCommandHandler(
         var transaction = await transactionRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), command.Id);
 
-        await CompteAuthorizationGuard.EnsureCompteOwnershipAsync(
-            transaction.CompteId, compteRepository, currentUserService, cancellationToken);
+        await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
+            transaction.SourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
 
         transaction.Modifier(command.Montant, command.Description, command.CategorieId, command.Date);
 

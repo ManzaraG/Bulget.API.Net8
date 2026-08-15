@@ -6,7 +6,7 @@ public interface ITransactionRepository
 {
     Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Transaction>> GetByCompteIdAsync(Guid compteId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Transaction>> GetByUtilisateurIdAndPeriodAsync(
         Guid utilisateurId,

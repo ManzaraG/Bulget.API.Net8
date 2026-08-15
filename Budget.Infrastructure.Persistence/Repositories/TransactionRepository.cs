@@ -9,9 +9,9 @@ public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransact
     public async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => await dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
-    public async Task<IReadOnlyList<Transaction>> GetByCompteIdAsync(Guid compteId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, CancellationToken cancellationToken = default)
         => await dbContext.Transactions
-            .Where(t => t.CompteId == compteId)
+            .Where(t => t.SourceRevenuId == sourceRevenuId)
             .OrderByDescending(t => t.Date)
             .ToListAsync(cancellationToken);
 
@@ -21,12 +21,12 @@ public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransact
         DateTime fin,
         CancellationToken cancellationToken = default)
     {
-        var compteIds = dbContext.Comptes
-            .Where(c => c.UtilisateurId == utilisateurId)
-            .Select(c => c.Id);
+        var sourceRevenuIds = dbContext.SourcesRevenu
+            .Where(s => s.UtilisateurId == utilisateurId)
+            .Select(s => s.Id);
 
         return await dbContext.Transactions
-            .Where(t => compteIds.Contains(t.CompteId) && t.Date >= debut && t.Date < fin)
+            .Where(t => sourceRevenuIds.Contains(t.SourceRevenuId) && t.Date >= debut && t.Date < fin)
             .ToListAsync(cancellationToken);
     }
 

@@ -11,7 +11,7 @@ public static class PersistenceServiceCollectionExtensions
     {
         services.AddDbContext<BudgetDbContext>(options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<ICompteRepository, CompteRepository>();
+        services.AddScoped<ISourceRevenuRepository, SourceRevenuRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ICategorieRepository, CategorieRepository>();
         services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();

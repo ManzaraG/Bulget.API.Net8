@@ -6,7 +6,7 @@ namespace Budget.Infrastructure.Persistence;
 public sealed class BudgetDbContext(DbContextOptions<BudgetDbContext> options) : DbContext(options)
 {
     public DbSet<Utilisateur> Utilisateurs => Set<Utilisateur>();
-    public DbSet<Compte> Comptes => Set<Compte>();
+    public DbSet<SourceRevenu> SourcesRevenu => Set<SourceRevenu>();
     public DbSet<Categorie> Categories => Set<Categorie>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
 

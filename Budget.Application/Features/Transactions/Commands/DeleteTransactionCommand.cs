@@ -1,6 +1,6 @@
 using Budget.Application.Contrats.Identities;
 using Budget.Application.Contrats.Repositories;
-using Budget.Application.Features.Comptes;
+using Budget.Application.Features.SourcesRevenu;
 using Budget.Domain.Entities;
 using Budget.Infrastructure.Exceptions;
 using Mediator;
@@ -11,7 +11,7 @@ public sealed record DeleteTransactionCommand(Guid Id) : ICommand;
 
 public sealed class DeleteTransactionCommandHandler(
     ITransactionRepository transactionRepository,
-    ICompteRepository compteRepository,
+    ISourceRevenuRepository sourceRevenuRepository,
     ICurrentUserService currentUserService) : ICommandHandler<DeleteTransactionCommand>
 {
     public async ValueTask<Unit> Handle(DeleteTransactionCommand command, CancellationToken cancellationToken)
@@ -19,8 +19,8 @@ public sealed class DeleteTransactionCommandHandler(
         var transaction = await transactionRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), command.Id);
 
-        await CompteAuthorizationGuard.EnsureCompteOwnershipAsync(
-            transaction.CompteId, compteRepository, currentUserService, cancellationToken);
+        await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
+            transaction.SourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
 
         await transactionRepository.DeleteAsync(command.Id, cancellationToken);
 
