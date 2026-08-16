@@ -1,4 +1,5 @@
 using Budget.API.Policies;
+using Budget.Application.Dtos.Common;
 using Budget.Application.Dtos.SourcesRevenu;
 using Budget.Application.Features.SourcesRevenu.Commands;
 using Budget.Application.Features.SourcesRevenu.Queries;
@@ -16,14 +17,14 @@ public sealed class AccountsController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<SourceRevenuDto>> Create(CreateSourceRevenuDto dto, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new CreateSourceRevenuCommand(dto.Nom, dto.Type), cancellationToken);
+        var result = await sender.Send(new CreateSourceRevenuCommand(dto.Nom, dto.TypeId), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<SourceRevenuDto>> Update(Guid id, UpdateSourceRevenuDto dto, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateSourceRevenuCommand(id, dto.Nom), cancellationToken);
+        var result = await sender.Send(new UpdateSourceRevenuCommand(id, dto.Nom, dto.TypeId), cancellationToken);
         return Ok(result);
     }
 
@@ -42,9 +43,15 @@ public sealed class AccountsController(ISender sender) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<SourceRevenuDto>>> GetList(CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResultDto<SourceRevenuDto>>> GetList(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new GetSourcesRevenuListQuery(), cancellationToken);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var result = await sender.Send(new GetSourcesRevenuListQuery(page, pageSize), cancellationToken);
         return Ok(result);
     }
 

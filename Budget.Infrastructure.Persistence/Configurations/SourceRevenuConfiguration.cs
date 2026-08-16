@@ -16,10 +16,7 @@ public sealed class SourceRevenuConfiguration : IEntityTypeConfiguration<SourceR
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(s => s.Type)
-            .IsRequired()
-            .HasConversion<string>()
-            .HasMaxLength(20);
+        builder.Property(s => s.TypeId).IsRequired();
 
         builder.Property(s => s.EstActif).IsRequired();
 
@@ -27,10 +24,16 @@ public sealed class SourceRevenuConfiguration : IEntityTypeConfiguration<SourceR
         builder.Property(s => s.DateCreation).IsRequired();
 
         builder.HasIndex(s => s.UtilisateurId);
+        builder.HasIndex(s => s.TypeId);
 
         builder.HasOne<Utilisateur>()
             .WithMany()
             .HasForeignKey(s => s.UtilisateurId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<TypeSourceRevenu>()
+            .WithMany()
+            .HasForeignKey(s => s.TypeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

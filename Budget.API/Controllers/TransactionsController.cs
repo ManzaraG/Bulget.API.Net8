@@ -1,4 +1,5 @@
 using Budget.API.Policies;
+using Budget.Application.Dtos.Common;
 using Budget.Application.Dtos.Transactions;
 using Budget.Application.Features.Transactions.Commands;
 using Budget.Application.Features.Transactions.Queries;
@@ -44,9 +45,16 @@ public sealed class TransactionsController(ISender sender) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<TransactionDto>>> GetList([FromQuery] Guid sourceRevenuId, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResultDto<TransactionDto>>> GetList(
+        [FromQuery] Guid sourceRevenuId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new GetTransactionsListQuery(sourceRevenuId), cancellationToken);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var result = await sender.Send(new GetTransactionsListQuery(sourceRevenuId, page, pageSize), cancellationToken);
         return Ok(result);
     }
 }

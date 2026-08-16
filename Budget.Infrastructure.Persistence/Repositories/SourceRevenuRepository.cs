@@ -1,3 +1,4 @@
+using Budget.Application.Contrats;
 using Budget.Application.Contrats.Repositories;
 using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,24 @@ public sealed class SourceRevenuRepository(BudgetDbContext dbContext) : ISourceR
     public async Task<SourceRevenu?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => await dbContext.SourcesRevenu.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 
-    public async Task<IReadOnlyList<SourceRevenu>> GetByUtilisateurIdAsync(Guid utilisateurId, CancellationToken cancellationToken = default)
-        => await dbContext.SourcesRevenu
+    public async Task<PagedResult<SourceRevenu>> GetByUtilisateurIdAsync(Guid utilisateurId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.SourcesRevenu
             .Where(s => s.UtilisateurId == utilisateurId)
+            .OrderBy(s => s.Nom);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<SourceRevenu>(items, totalCount, page, pageSize);
+    }
+
+    public async Task<IReadOnlyList<SourceRevenu>> GetByTypeIdAsync(Guid typeId, CancellationToken cancellationToken = default)
+        => await dbContext.SourcesRevenu
+            .Where(s => s.TypeId == typeId)
             .ToListAsync(cancellationToken);
 
     public async Task AddAsync(SourceRevenu sourceRevenu, CancellationToken cancellationToken = default)

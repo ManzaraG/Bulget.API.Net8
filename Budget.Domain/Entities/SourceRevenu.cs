@@ -1,12 +1,10 @@
-using Budget.Domain.DomainEnums;
-
 namespace Budget.Domain.Entities;
 
 public class SourceRevenu
 {
     public Guid Id { get; }
     public string Nom { get; private set; }
-    public TypeSourceRevenu Type { get; }
+    public Guid TypeId { get; private set; }
     public bool EstActif { get; private set; }
     public Guid UtilisateurId { get; }
     public DateTime DateCreation { get; }
@@ -16,16 +14,17 @@ public class SourceRevenu
         Nom = null!;
     }
 
-    public SourceRevenu(string nom, TypeSourceRevenu type, Guid utilisateurId)
+    public SourceRevenu(string nom, Guid typeId, Guid utilisateurId)
     {
         GuardNom(nom);
+        GuardTypeId(typeId);
 
         if (utilisateurId == Guid.Empty)
             throw new ArgumentException("Une source de revenu doit appartenir à un utilisateur.", nameof(utilisateurId));
 
         Id = Guid.NewGuid();
         Nom = nom;
-        Type = type;
+        TypeId = typeId;
         EstActif = true;
         UtilisateurId = utilisateurId;
         DateCreation = DateTime.UtcNow;
@@ -36,6 +35,13 @@ public class SourceRevenu
         GuardNom(nom);
 
         Nom = nom;
+    }
+
+    public void ChangerType(Guid typeId)
+    {
+        GuardTypeId(typeId);
+
+        TypeId = typeId;
     }
 
     public void Activer()
@@ -52,5 +58,11 @@ public class SourceRevenu
     {
         if (string.IsNullOrWhiteSpace(nom))
             throw new ArgumentException("Le nom de la source de revenu est requis.", nameof(nom));
+    }
+
+    private static void GuardTypeId(Guid typeId)
+    {
+        if (typeId == Guid.Empty)
+            throw new ArgumentException("Une source de revenu doit avoir un type.", nameof(typeId));
     }
 }

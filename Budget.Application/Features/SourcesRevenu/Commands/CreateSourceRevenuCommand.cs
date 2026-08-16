@@ -7,10 +7,11 @@ using Mediator;
 
 namespace Budget.Application.Features.SourcesRevenu.Commands;
 
-public sealed record CreateSourceRevenuCommand(string Nom, TypeSourceRevenuDto Type) : ICommand<SourceRevenuDto>;
+public sealed record CreateSourceRevenuCommand(string Nom, Guid TypeId) : ICommand<SourceRevenuDto>;
 
 public sealed class CreateSourceRevenuCommandHandler(
     ISourceRevenuRepository sourceRevenuRepository,
+    ITypeSourceRevenuRepository typeSourceRevenuRepository,
     ICurrentUserService currentUserService) : ICommandHandler<CreateSourceRevenuCommand, SourceRevenuDto>
 {
     public async ValueTask<SourceRevenuDto> Handle(CreateSourceRevenuCommand command, CancellationToken cancellationToken)
@@ -18,7 +19,10 @@ public sealed class CreateSourceRevenuCommandHandler(
         var utilisateurId = currentUserService.UtilisateurId
             ?? throw new ForbiddenAccessException("Utilisateur non authentifié.");
 
-        var sourceRevenu = new SourceRevenu(command.Nom, command.Type.ToDomain(), utilisateurId);
+        _ = await typeSourceRevenuRepository.GetByIdAsync(command.TypeId, cancellationToken)
+            ?? throw new NotFoundException(nameof(TypeSourceRevenu), command.TypeId);
+
+        var sourceRevenu = new SourceRevenu(command.Nom, command.TypeId, utilisateurId);
 
         await sourceRevenuRepository.AddAsync(sourceRevenu, cancellationToken);
 

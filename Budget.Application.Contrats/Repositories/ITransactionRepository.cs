@@ -1,3 +1,4 @@
+using Budget.Application.Contrats;
 using Budget.Domain.Entities;
 
 namespace Budget.Application.Contrats.Repositories;
@@ -6,7 +7,7 @@ public interface ITransactionRepository
 {
     Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, CancellationToken cancellationToken = default);
+    Task<PagedResult<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, int page, int pageSize, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Transaction>> GetByUtilisateurIdAndPeriodAsync(
         Guid utilisateurId,

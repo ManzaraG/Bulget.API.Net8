@@ -93,38 +93,45 @@ Un premier niveau, générique, vérifie côté API que la requête porte un jet
 
 ## 05 — Modèle de domaine
 
-Quatre entités suffisent à représenter tout le métier. La particularité à retenir : les **catégories** sont les seules à ne pas appartenir à un utilisateur.
+Cinq entités suffisent à représenter tout le métier. La particularité à retenir : les **catégories** et les **types de source de revenu** sont les seules à ne pas appartenir à un utilisateur — ce sont des catalogues partagés par tous.
 
 ```mermaid
 flowchart LR
     subgraph Perimetre["Périmètre d'un utilisateur"]
-        U["Utilisateur<br/>prénom, nom, email"] -->|"possède 0..N"| C["SourceRevenu<br/>nom, type, actif"]
+        U["Utilisateur<br/>prénom, nom, email"] -->|"possède 0..N"| C["SourceRevenu<br/>nom, actif"]
         C -->|"contient 0..N"| T["Transaction<br/>montant positif, type, date"]
     end
+    C -.->|référence| Typ["TypeSourceRevenu<br/>partagé — hors périmètre"]
     T -.->|référence| Cat["Catégorie<br/>partagée — hors périmètre"]
 ```
 
-Les catégories sont hors de la frontière du périmètre utilisateur : c'est la seule entité qui n'a pas de propriétaire. Une transaction, elle, ne peut exister sans source de revenu, et une source de revenu ne peut exister sans utilisateur.
+Les catégories et les types de source de revenu sont hors de la frontière du périmètre utilisateur : ce sont les seules entités qui n'ont pas de propriétaire — n'importe quel utilisateur connecté peut en créer un nouveau, tout le monde le voit (ex. ajouter un type "Pension"). Une transaction ne peut exister sans source de revenu, une source de revenu ne peut exister sans utilisateur ni sans type valide, et un type encore utilisé ne peut pas être supprimé.
 
 ## 06 — Les endpoints
 
-Cinq contrôleurs. Tous exigent un jeton JWT valide, à l'exception de l'authentification.
+Six contrôleurs. Tous exigent un jeton JWT valide, à l'exception de l'authentification.
+
+Les 4 endpoints de liste (`GET /api/accounts`, `GET /api/account-types`, `GET /api/categories`, `GET /api/transactions`) sont paginés via `?page=&pageSize=` (défauts `1`/`20`, `pageSize` borné à 100) et renvoient une enveloppe `{ items, totalCount, page, pageSize }` plutôt qu'un tableau brut.
 
 | Route | Action |
 |---|---|
 | `POST /api/auth/register` | Inscription (prénom, nom, email, mot de passe + confirmation, acceptation des CGU) |
 | `POST /api/auth/login` | Connexion, avec option « se souvenir de moi » |
-| `GET /api/accounts` | Liste des sources de revenu de l'utilisateur connecté |
-| `POST /api/accounts` | Créer une source de revenu |
-| `PUT /api/accounts/{id}` | Renommer une source de revenu |
+| `GET /api/accounts` | Liste paginée des sources de revenu de l'utilisateur connecté |
+| `POST /api/accounts` | Créer une source de revenu (référence un `typeId`) |
+| `PUT /api/accounts/{id}` | Renommer/recatégoriser une source de revenu |
 | `PATCH /api/accounts/{id}/activate` | Réactiver une source de revenu |
 | `PATCH /api/accounts/{id}/deactivate` | Désactiver une source de revenu (sans supprimer son historique) |
 | `DELETE /api/accounts/{id}` | Supprimer une source de revenu désactivée |
-| `GET /api/categories` | Liste des catégories (catalogue partagé) |
+| `GET /api/account-types` | Liste paginée des types de source de revenu (catalogue partagé) |
+| `POST /api/account-types` | Créer un type (ex. « Pension ») |
+| `PUT /api/account-types/{id}` | Renommer un type |
+| `DELETE /api/account-types/{id}` | Supprimer un type (refusé s'il est encore utilisé) |
+| `GET /api/categories` | Liste paginée des catégories (catalogue partagé) |
 | `POST /api/categories` | Créer une catégorie |
 | `PUT /api/categories/{id}` | Renommer une catégorie |
 | `DELETE /api/categories/{id}` | Supprimer une catégorie |
-| `GET /api/transactions?sourceRevenuId=` | Historique des transactions d'une source de revenu |
+| `GET /api/transactions?sourceRevenuId=` | Historique paginé des transactions d'une source de revenu |
 | `POST /api/transactions` | Enregistrer un revenu ou une dépense |
 | `PUT /api/transactions/{id}` | Modifier montant, description, catégorie ou date |
 | `DELETE /api/transactions/{id}` | Supprimer une transaction |

@@ -1,3 +1,4 @@
+using Budget.Application.Contrats;
 using Budget.Application.Contrats.Repositories;
 using Budget.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,20 @@ public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransact
     public async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => await dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
-    public async Task<IReadOnlyList<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, CancellationToken cancellationToken = default)
-        => await dbContext.Transactions
+    public async Task<PagedResult<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, int page, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Transactions
             .Where(t => t.SourceRevenuId == sourceRevenuId)
-            .OrderByDescending(t => t.Date)
+            .OrderByDescending(t => t.Date);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return new PagedResult<Transaction>(items, totalCount, page, pageSize);
+    }
 
     public async Task<IReadOnlyList<Transaction>> GetByUtilisateurIdAndPeriodAsync(
         Guid utilisateurId,

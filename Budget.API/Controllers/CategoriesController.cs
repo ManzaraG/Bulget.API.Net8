@@ -1,5 +1,6 @@
 using Budget.API.Policies;
 using Budget.Application.Dtos.Categories;
+using Budget.Application.Dtos.Common;
 using Budget.Application.Features.Categories.Commands;
 using Budget.Application.Features.Categories.Queries;
 using Mediator;
@@ -42,9 +43,15 @@ public sealed class CategoriesController(ISender sender) : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<CategorieDto>>> GetList(CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResultDto<CategorieDto>>> GetList(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new GetCategoriesListQuery(), cancellationToken);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var result = await sender.Send(new GetCategoriesListQuery(page, pageSize), cancellationToken);
         return Ok(result);
     }
 }

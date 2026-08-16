@@ -7,6 +7,7 @@ public sealed class BudgetDbContext(DbContextOptions<BudgetDbContext> options) :
 {
     public DbSet<Utilisateur> Utilisateurs => Set<Utilisateur>();
     public DbSet<SourceRevenu> SourcesRevenu => Set<SourceRevenu>();
+    public DbSet<TypeSourceRevenu> TypesSourceRevenu => Set<TypeSourceRevenu>();
     public DbSet<Categorie> Categories => Set<Categorie>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
 
