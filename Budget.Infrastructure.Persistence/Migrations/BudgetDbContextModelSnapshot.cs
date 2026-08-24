@@ -43,6 +43,46 @@ namespace Budget.Infrastructure.Persistence.Migrations
                     b.ToTable("Categories", (string)null);
                 });
 
+            modelBuilder.Entity("Budget.Domain.Entities.Devise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Devises", (string)null);
+                });
+
+            modelBuilder.Entity("Budget.Domain.Entities.RepartitionSourceRevenu", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Montant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("SourceRevenuId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceRevenuId");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("RepartitionsSourceRevenu", (string)null);
+                });
+
             modelBuilder.Entity("Budget.Domain.Entities.SourceRevenu", b =>
                 {
                     b.Property<Guid>("Id")
@@ -51,6 +91,9 @@ namespace Budget.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("DateCreation")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DeviseId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("EstActif")
                         .HasColumnType("bit");
@@ -67,6 +110,8 @@ namespace Budget.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DeviseId");
 
                     b.HasIndex("TypeId");
 
@@ -91,12 +136,6 @@ namespace Budget.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<decimal>("Montant")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<Guid>("SourceRevenuId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -106,9 +145,7 @@ namespace Budget.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategorieId");
 
-                    b.HasIndex("SourceRevenuId");
-
-                    b.HasIndex("SourceRevenuId", "Date");
+                    b.HasIndex("Date");
 
                     b.ToTable("Transactions", (string)null);
                 });
@@ -166,8 +203,29 @@ namespace Budget.Infrastructure.Persistence.Migrations
                     b.ToTable("Utilisateurs", (string)null);
                 });
 
+            modelBuilder.Entity("Budget.Domain.Entities.RepartitionSourceRevenu", b =>
+                {
+                    b.HasOne("Budget.Domain.Entities.SourceRevenu", null)
+                        .WithMany()
+                        .HasForeignKey("SourceRevenuId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Budget.Domain.Entities.Transaction", null)
+                        .WithMany("Repartitions")
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Budget.Domain.Entities.SourceRevenu", b =>
                 {
+                    b.HasOne("Budget.Domain.Entities.Devise", null)
+                        .WithMany()
+                        .HasForeignKey("DeviseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Budget.Domain.Entities.TypeSourceRevenu", null)
                         .WithMany()
                         .HasForeignKey("TypeId")
@@ -187,12 +245,11 @@ namespace Budget.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("CategorieId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
 
-                    b.HasOne("Budget.Domain.Entities.SourceRevenu", null)
-                        .WithMany()
-                        .HasForeignKey("SourceRevenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            modelBuilder.Entity("Budget.Domain.Entities.Transaction", b =>
+                {
+                    b.Navigation("Repartitions");
                 });
 #pragma warning restore 612, 618
         }

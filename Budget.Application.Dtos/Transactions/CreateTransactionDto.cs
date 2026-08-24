@@ -1,9 +1,8 @@
 namespace Budget.Application.Dtos.Transactions;
 
 public sealed record CreateTransactionDto(
-    decimal Montant,
     TypeTransactionDto Type,
-    Guid SourceRevenuId,
+    IReadOnlyList<RepartitionSourceRevenuDto> Repartitions,
     Guid? CategorieId,
     string? Description,
     DateTime? Date);

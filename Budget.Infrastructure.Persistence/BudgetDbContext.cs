@@ -10,6 +10,7 @@ public sealed class BudgetDbContext(DbContextOptions<BudgetDbContext> options) :
     public DbSet<TypeSourceRevenu> TypesSourceRevenu => Set<TypeSourceRevenu>();
     public DbSet<Categorie> Categories => Set<Categorie>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<Devise> Devises => Set<Devise>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -12,10 +12,6 @@ public sealed class TransactionConfiguration : IEntityTypeConfiguration<Transact
 
         builder.HasKey(t => t.Id);
 
-        builder.Property(t => t.Montant)
-            .IsRequired()
-            .HasColumnType("decimal(18,2)");
-
         builder.Property(t => t.Type)
             .IsRequired()
             .HasConversion<string>()
@@ -25,19 +21,18 @@ public sealed class TransactionConfiguration : IEntityTypeConfiguration<Transact
 
         builder.Property(t => t.Description).HasMaxLength(500);
 
-        builder.Property(t => t.SourceRevenuId).IsRequired();
-
-        builder.HasIndex(t => t.SourceRevenuId);
-        builder.HasIndex(t => new { t.SourceRevenuId, t.Date });
-
-        builder.HasOne<SourceRevenu>()
-            .WithMany()
-            .HasForeignKey(t => t.SourceRevenuId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(t => t.Date);
 
         builder.HasOne<Categorie>()
             .WithMany()
             .HasForeignKey(t => t.CategorieId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasMany(t => t.Repartitions)
+            .WithOne()
+            .HasForeignKey(r => r.TransactionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(t => t.Repartitions).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

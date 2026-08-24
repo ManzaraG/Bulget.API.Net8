@@ -19,8 +19,11 @@ public sealed class DeleteTransactionCommandHandler(
         var transaction = await transactionRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), command.Id);
 
-        await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
-            transaction.SourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
+        foreach (var sourceRevenuId in transaction.Repartitions.Select(r => r.SourceRevenuId).Distinct())
+        {
+            await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
+                sourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
+        }
 
         await transactionRepository.DeleteAsync(command.Id, cancellationToken);
 

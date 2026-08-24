@@ -10,7 +10,7 @@ namespace Budget.Application.Features.Transactions.Commands;
 
 public sealed record UpdateTransactionCommand(
     Guid Id,
-    decimal Montant,
+    IReadOnlyList<RepartitionSourceRevenuDto> Repartitions,
     string? Description,
     Guid? CategorieId,
     DateTime Date) : ICommand<TransactionDto>;
@@ -25,10 +25,21 @@ public sealed class UpdateTransactionCommandHandler(
         var transaction = await transactionRepository.GetByIdAsync(command.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), command.Id);
 
-        await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
-            transaction.SourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
+        var sourceRevenuIdsAVerifier = transaction.Repartitions.Select(r => r.SourceRevenuId)
+            .Concat(command.Repartitions.Select(r => r.SourceRevenuId))
+            .Distinct();
 
-        transaction.Modifier(command.Montant, command.Description, command.CategorieId, command.Date);
+        foreach (var sourceRevenuId in sourceRevenuIdsAVerifier)
+        {
+            await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
+                sourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
+        }
+
+        var repartitions = command.Repartitions
+            .Select(r => new RepartitionSourceRevenu(r.SourceRevenuId, r.Montant))
+            .ToList();
+
+        transaction.Modifier(repartitions, command.Description, command.CategorieId, command.Date);
 
         await transactionRepository.UpdateAsync(transaction, cancellationToken);
 

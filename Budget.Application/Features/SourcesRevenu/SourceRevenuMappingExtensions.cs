@@ -9,6 +9,7 @@ internal static class SourceRevenuMappingExtensions
         sourceRevenu.Id,
         sourceRevenu.Nom,
         sourceRevenu.TypeId,
+        sourceRevenu.DeviseId,
         sourceRevenu.EstActif,
         sourceRevenu.UtilisateurId,
         sourceRevenu.DateCreation);

@@ -23,6 +23,11 @@ public sealed class CategorieRepository(BudgetDbContext dbContext) : ICategorieR
         return new PagedResult<Categorie>(items, totalCount, page, pageSize);
     }
 
+    public async Task<IReadOnlyList<Categorie>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await dbContext.Categories
+            .OrderBy(c => c.Nom)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(Categorie categorie, CancellationToken cancellationToken = default)
     {
         await dbContext.Categories.AddAsync(categorie, cancellationToken);

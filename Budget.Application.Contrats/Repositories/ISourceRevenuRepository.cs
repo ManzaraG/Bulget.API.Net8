@@ -9,6 +9,8 @@ public interface ISourceRevenuRepository
 
     Task<PagedResult<SourceRevenu>> GetByUtilisateurIdAsync(Guid utilisateurId, int page, int pageSize, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<SourceRevenu>> GetAllByUtilisateurIdAsync(Guid utilisateurId, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<SourceRevenu>> GetByTypeIdAsync(Guid typeId, CancellationToken cancellationToken = default);
 
     Task AddAsync(SourceRevenu sourceRevenu, CancellationToken cancellationToken = default);

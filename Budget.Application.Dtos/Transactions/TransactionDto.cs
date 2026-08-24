@@ -6,5 +6,5 @@ public sealed record TransactionDto(
     TypeTransactionDto Type,
     DateTime Date,
     string? Description,
-    Guid SourceRevenuId,
+    IReadOnlyList<RepartitionSourceRevenuDto> Repartitions,
     Guid? CategorieId);

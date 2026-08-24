@@ -17,7 +17,7 @@ public sealed class TransactionsController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TransactionDto>> Create(CreateTransactionDto dto, CancellationToken cancellationToken)
     {
-        var command = new CreateTransactionCommand(dto.Montant, dto.Type, dto.SourceRevenuId, dto.CategorieId, dto.Description, dto.Date);
+        var command = new CreateTransactionCommand(dto.Type, dto.Repartitions, dto.CategorieId, dto.Description, dto.Date);
         var result = await sender.Send(command, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
@@ -25,7 +25,7 @@ public sealed class TransactionsController(ISender sender) : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<TransactionDto>> Update(Guid id, UpdateTransactionDto dto, CancellationToken cancellationToken)
     {
-        var command = new UpdateTransactionCommand(id, dto.Montant, dto.Description, dto.CategorieId, dto.Date);
+        var command = new UpdateTransactionCommand(id, dto.Repartitions, dto.Description, dto.CategorieId, dto.Date);
         var result = await sender.Send(command, cancellationToken);
         return Ok(result);
     }

@@ -20,8 +20,11 @@ public sealed class GetTransactionByIdQueryHandler(
         var transaction = await transactionRepository.GetByIdAsync(query.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), query.Id);
 
-        await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
-            transaction.SourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
+        foreach (var sourceRevenuId in transaction.Repartitions.Select(r => r.SourceRevenuId).Distinct())
+        {
+            await SourceRevenuAuthorizationGuard.EnsureSourceRevenuOwnershipAsync(
+                sourceRevenuId, sourceRevenuRepository, currentUserService, cancellationToken);
+        }
 
         return transaction.ToDto();
     }

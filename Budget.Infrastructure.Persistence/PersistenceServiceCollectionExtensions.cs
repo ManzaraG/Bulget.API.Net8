@@ -16,6 +16,7 @@ public static class PersistenceServiceCollectionExtensions
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<ICategorieRepository, CategorieRepository>();
         services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
+        services.AddScoped<IDeviseRepository, DeviseRepository>();
 
         return services;
     }

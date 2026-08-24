@@ -1,3 +1,3 @@
 namespace Budget.Application.Dtos.SourcesRevenu;
 
-public sealed record CreateSourceRevenuDto(string Nom, Guid TypeId);
+public sealed record CreateSourceRevenuDto(string Nom, Guid TypeId, Guid DeviseId);

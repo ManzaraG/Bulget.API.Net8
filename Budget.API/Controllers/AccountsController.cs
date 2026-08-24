@@ -17,14 +17,14 @@ public sealed class AccountsController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<SourceRevenuDto>> Create(CreateSourceRevenuDto dto, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new CreateSourceRevenuCommand(dto.Nom, dto.TypeId), cancellationToken);
+        var result = await sender.Send(new CreateSourceRevenuCommand(dto.Nom, dto.TypeId, dto.DeviseId), cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<SourceRevenuDto>> Update(Guid id, UpdateSourceRevenuDto dto, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateSourceRevenuCommand(id, dto.Nom, dto.TypeId), cancellationToken);
+        var result = await sender.Send(new UpdateSourceRevenuCommand(id, dto.Nom, dto.TypeId, dto.DeviseId), cancellationToken);
         return Ok(result);
     }
 

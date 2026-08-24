@@ -1,7 +1,7 @@
 namespace Budget.Application.Dtos.Transactions;
 
 public sealed record UpdateTransactionDto(
-    decimal Montant,
+    IReadOnlyList<RepartitionSourceRevenuDto> Repartitions,
     string? Description,
     Guid? CategorieId,
     DateTime Date);

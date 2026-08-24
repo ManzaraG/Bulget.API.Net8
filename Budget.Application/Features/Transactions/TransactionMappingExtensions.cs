@@ -11,6 +11,6 @@ internal static class TransactionMappingExtensions
         transaction.EstRevenu ? TypeTransactionDto.Revenu : TypeTransactionDto.Depense,
         transaction.Date,
         transaction.Description,
-        transaction.SourceRevenuId,
+        transaction.Repartitions.Select(r => new RepartitionSourceRevenuDto(r.SourceRevenuId, r.Montant)).ToList(),
         transaction.CategorieId);
 }

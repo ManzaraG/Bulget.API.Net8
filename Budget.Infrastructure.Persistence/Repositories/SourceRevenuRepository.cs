@@ -25,6 +25,12 @@ public sealed class SourceRevenuRepository(BudgetDbContext dbContext) : ISourceR
         return new PagedResult<SourceRevenu>(items, totalCount, page, pageSize);
     }
 
+    public async Task<IReadOnlyList<SourceRevenu>> GetAllByUtilisateurIdAsync(Guid utilisateurId, CancellationToken cancellationToken = default)
+        => await dbContext.SourcesRevenu
+            .Where(s => s.UtilisateurId == utilisateurId)
+            .OrderBy(s => s.Nom)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<SourceRevenu>> GetByTypeIdAsync(Guid typeId, CancellationToken cancellationToken = default)
         => await dbContext.SourcesRevenu
             .Where(s => s.TypeId == typeId)

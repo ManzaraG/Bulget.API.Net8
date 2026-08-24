@@ -8,12 +8,15 @@ namespace Budget.Infrastructure.Persistence.Repositories;
 public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransactionRepository
 {
     public async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => await dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        => await dbContext.Transactions
+            .Include(t => t.Repartitions)
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
     public async Task<PagedResult<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = dbContext.Transactions
-            .Where(t => t.SourceRevenuId == sourceRevenuId)
+            .Include(t => t.Repartitions)
+            .Where(t => t.Repartitions.Any(r => r.SourceRevenuId == sourceRevenuId))
             .OrderByDescending(t => t.Date);
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -36,7 +39,8 @@ public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransact
             .Select(s => s.Id);
 
         return await dbContext.Transactions
-            .Where(t => sourceRevenuIds.Contains(t.SourceRevenuId) && t.Date >= debut && t.Date < fin)
+            .Include(t => t.Repartitions)
+            .Where(t => t.Repartitions.Any(r => sourceRevenuIds.Contains(r.SourceRevenuId)) && t.Date >= debut && t.Date < fin)
             .ToListAsync(cancellationToken);
     }
 
@@ -48,7 +52,6 @@ public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransact
 
     public async Task UpdateAsync(Transaction transaction, CancellationToken cancellationToken = default)
     {
-        dbContext.Transactions.Update(transaction);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

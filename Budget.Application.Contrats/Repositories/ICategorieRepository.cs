@@ -9,6 +9,8 @@ public interface ICategorieRepository
 
     Task<PagedResult<Categorie>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Categorie>> GetAllAsync(CancellationToken cancellationToken = default);
+
     Task AddAsync(Categorie categorie, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(Categorie categorie, CancellationToken cancellationToken = default);
