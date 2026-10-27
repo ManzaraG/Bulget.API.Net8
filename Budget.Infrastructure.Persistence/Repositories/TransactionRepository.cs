@@ -12,6 +12,10 @@ public sealed class TransactionRepository(BudgetDbContext dbContext) : ITransact
             .Include(t => t.Repartitions)
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
+    public async Task<bool> ExistsBySourceRevenuIdAsync(Guid sourceRevenuId, CancellationToken cancellationToken = default)
+        => await dbContext.Transactions
+            .AnyAsync(t => t.Repartitions.Any(r => r.SourceRevenuId == sourceRevenuId), cancellationToken);
+
     public async Task<PagedResult<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, int page, int pageSize, CancellationToken cancellationToken = default)
     {
         var query = dbContext.Transactions

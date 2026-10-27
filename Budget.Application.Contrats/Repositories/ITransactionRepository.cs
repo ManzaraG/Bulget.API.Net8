@@ -7,6 +7,8 @@ public interface ITransactionRepository
 {
     Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsBySourceRevenuIdAsync(Guid sourceRevenuId, CancellationToken cancellationToken = default);
+
     Task<PagedResult<Transaction>> GetBySourceRevenuIdAsync(Guid sourceRevenuId, int page, int pageSize, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Transaction>> GetByUtilisateurIdAndPeriodAsync(

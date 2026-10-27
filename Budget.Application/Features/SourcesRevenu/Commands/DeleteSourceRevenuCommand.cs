@@ -10,6 +10,7 @@ public sealed record DeleteSourceRevenuCommand(Guid Id) : ICommand;
 
 public sealed class DeleteSourceRevenuCommandHandler(
     ISourceRevenuRepository sourceRevenuRepository,
+    ITransactionRepository transactionRepository,
     ICurrentUserService currentUserService) : ICommandHandler<DeleteSourceRevenuCommand>
 {
     public async ValueTask<Unit> Handle(DeleteSourceRevenuCommand command, CancellationToken cancellationToken)
@@ -21,6 +22,9 @@ public sealed class DeleteSourceRevenuCommandHandler(
 
         if (sourceRevenu.EstActif)
             throw new ConflictException("Impossible de supprimer une source de revenu active. Désactivez-la d'abord.");
+
+        if (await transactionRepository.ExistsBySourceRevenuIdAsync(command.Id, cancellationToken))
+            throw new ConflictException("Impossible de supprimer cette source de revenu : des transactions y sont rattachées. Gardez-la désactivée.");
 
         await sourceRevenuRepository.DeleteAsync(command.Id, cancellationToken);
 

@@ -11,6 +11,9 @@ public sealed class RepartitionSourceRevenuConfiguration : IEntityTypeConfigurat
         builder.ToTable("RepartitionsSourceRevenu");
 
         builder.HasKey(r => r.Id);
+        // L'Id est généré côté domaine : sans cela, EF considère les nouvelles répartitions
+        // ajoutées à une transaction déjà suivie comme "Modified" (UPDATE sur 0 ligne).
+        builder.Property(r => r.Id).ValueGeneratedNever();
 
         builder.Property(r => r.TransactionId).IsRequired();
         builder.Property(r => r.SourceRevenuId).IsRequired();
