@@ -1,3 +1,4 @@
+using Budget.API.AuthenticationServices;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Budget.API.Policies;
@@ -16,7 +17,16 @@ public static class AuthorizationServiceCollectionExtensions
             .SetDefaultPolicy(new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build())
-            .AddPolicy(AuthorizationPolicyNames.RequireAuthenticatedUser, policy => policy.RequireAuthenticatedUser());
+            .AddPolicy(AuthorizationPolicyNames.RequireAuthenticatedUser, policy => policy.RequireAuthenticatedUser())
+            .AddPolicy(AuthorizationPolicyNames.TransactionsReadPolicy, policy => policy
+                .AddAuthenticationSchemes(ApiKeyAuthenticationHandler.SchemeName)
+                .RequireClaim("Transactions", "Read"))
+            .AddPolicy(AuthorizationPolicyNames.DashboardReadPolicy, policy => policy
+                .AddAuthenticationSchemes(ApiKeyAuthenticationHandler.SchemeName)
+                .RequireClaim("Dashboard", "Read"))
+            .AddPolicy(AuthorizationPolicyNames.CategoriesReadPolicy, policy => policy
+                .AddAuthenticationSchemes(ApiKeyAuthenticationHandler.SchemeName)
+                .RequireClaim("Categories", "Read"));
 
         return services;
     }

@@ -24,6 +24,8 @@
     <ProjectReference Include="..\Budget.Infrastructure.Exceptions\Budget.Infrastructure.Exceptions.csproj" />
     <ProjectReference Include="..\Budget.Shared\Budget.Shared.csproj" />
     <ProjectReference Include="..\Budget.Application.Adapters\Budget.Application.Adapters.csproj" />
+    <ProjectReference Include="..\..\..\solution-autonome-apikey-net\Inexa.ApiKeys.Core\Inexa.ApiKeys.Core.csproj" />
+    <ProjectReference Include="..\..\..\solution-autonome-apikey-net\Inexa.ApiKeys.Dapper.SqlServer\Inexa.ApiKeys.Dapper.SqlServer.csproj" />
   </ItemGroup>
 
 </Project>
