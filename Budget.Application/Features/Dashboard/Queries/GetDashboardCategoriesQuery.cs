@@ -25,19 +25,20 @@ public sealed class GetDashboardCategoriesQueryHandler(
             utilisateurId, debut, fin, cancellationToken);
         var categories = await categorieRepository.GetAllAsync(cancellationToken);
 
-        var montantParCategorie = transactions
-            .Where(t => t.CategorieId.HasValue)
-            .GroupBy(t => t.CategorieId!.Value)
-            .ToDictionary(g => g.Key, g => g.Sum(t => t.Montant));
+        var depenses = transactions.Where(t => t.EstDepense).ToList();
+        var total = depenses.Sum(t => t.Montant);
 
-        var total = montantParCategorie.Values.Sum();
+        var nomParCategorie = categories.ToDictionary(c => c.Id, c => c.Nom);
 
-        return categories
-            .Select(c =>
+        // Les dépenses sans catégorie (ou dont la catégorie a disparu) sont regroupées sous Guid.Empty.
+        return depenses
+            .GroupBy(t => t.CategorieId.HasValue && nomParCategorie.ContainsKey(t.CategorieId.Value) ? t.CategorieId.Value : Guid.Empty)
+            .Select(g =>
             {
-                var montant = montantParCategorie.GetValueOrDefault(c.Id);
+                var montant = g.Sum(t => t.Montant);
+                var nom = g.Key == Guid.Empty ? "Sans catégorie" : nomParCategorie[g.Key];
                 var pourcentage = total > 0 ? Math.Round(montant / total * 100, 2) : 0m;
-                return new CategorieBudgetDto(c.Id, c.Nom, montant, pourcentage);
+                return new CategorieBudgetDto(g.Key, nom, montant, pourcentage);
             })
             .OrderByDescending(c => c.Montant)
             .ToList();

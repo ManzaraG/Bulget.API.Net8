@@ -42,6 +42,17 @@ public sealed class DashboardController(ISender sender) : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("recent-transactions")]
+    public async Task<ActionResult<IReadOnlyList<TransactionRecenteDto>>> GetRecentTransactions(
+        [FromQuery] int annee,
+        [FromQuery] int mois,
+        [FromQuery] int limite = 5,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new GetDashboardRecentTransactionsQuery(annee, mois, limite), cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("categories")]
     public async Task<ActionResult<IReadOnlyList<CategorieBudgetDto>>> GetCategories(
         [FromQuery] int annee,
